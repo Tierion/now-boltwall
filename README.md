@@ -1,13 +1,17 @@
 # The `now` Boltwall Builder
 
 An easy to deploy gateway for enabling payments and authentication with other compatible applications.
-The package simply exposes a simple expressjs server with the last middleware being a `boltwall` paywall.
-Any middleware used after it will be subject to the paywall
+The package simply exposes an expressjs server with the last middleware being a `boltwall` paywall.
+Any middleware used after it will be subject to the paywall.
+
+To learn more about `boltwall`, checkout the module's [documentation](https://github.com/tierion/boltwall)
+for detailed information on its API, using in standalone server, how it uses macaroons for authorization,
+and much more.
 
 ## Usage
 
 Copy the `example` directory in this project. `index.js` exposes the api endpoint
-you want behind the paywall[1]. Make sure you have [now](https://zeit.co/now) and
+you want behind the paywall. Make sure you have [now](https://zeit.co/now) and
 [OpenNode](https://opennode.co) setup, then in the directory run:
 
 ```bash
@@ -15,35 +19,22 @@ you want behind the paywall[1]. Make sure you have [now](https://zeit.co/now) an
 $ now -e OPEN_NODE_KEY=[OpenNode API Key] -e CAVEAT_KEY=[Macaroon Signing Key]
 ```
 
-A self-hosted node is also supported though additional configs are required.
-See [`boltwall`](https://github.com/boltwall-org/boltwall) for more information on configuration.
-
-### Authorization Flow and REST API
-
-Information about the lightning node to interact with can be retrieved via the endpoint `GET */node`
-
-In order to get access to a protected endpoint the client must:
-
-1. Generate an invoice at `POST */invoice` with body containing
-   [relevant properties](https://app.swaggerhub.com/apis-docs/prism8/boltwall/1.0.0#/default/generateInvoice)
-1. Pay the invoice request returned from the above call using your lightning node
-1. `GET */invoice` to check status and get discharge macaroon (this will also be attached to the current
-   client's session)
-1. Protected content is now accessible for the amount of time paid for.
-
-Check out the [REST API docs](https://app.swaggerhub.com/apis-docs/prism8/boltwall/1.0.0#/) for
-additional information.
+The command will give you a URL where your API endpoints can be accessed. You can read the
+[API docs](https://app.swaggerhub.com/apis-docs/prism8/boltwall) for more details on available interactions.
 
 ## Overview
 
-The Boltwall Builder is a relatively simple lambda service built with Zeit's Now service.
-It serves two primary functions:
+The Boltwall Builder is a relatively simple lambda service built with Zeit's Now service that makes it
+super easy to deploy paywalls via serverless lambdas.
+
+These can serve two primary functions (the same as the `boltwall` package its built with):
 
 1. Generate invoices for payments based off of received criteria (time based by default: 1 satoshi/second)
 2. Supports 3rd party, oAuth-style authentication by returning a discharge macaroon after successful payment
 
 In practice, what this means is that you can put this API layer in front of a compatible lightning node
-(either hosted via OpenNode or your own lnd node) to provide users with an authorization that can be used in another application or as a paywall in front of your own protected content.
+(either hosted via OpenNode or your own lnd node) to provide users with an authorization that can be used in another
+application or as a paywall in front of your own protected content.
 
 [Prism](https://prismreader.app) is an example of a 3rd party application that lets users host their own
 oAuth-like authentication payment systems. In this case, the app is waiting until a user has authenticated with
@@ -54,7 +45,7 @@ protected content.
 
 ## Installation
 
-Setting up your own ln-builder payments gateway can be done in just a few steps (most are related to
+Setting up your own now-boltwall payments gateway can be done in just a few steps (and most are related to
 creating accounts to enable deployment).
 
 #### Setup Zeit
@@ -86,7 +77,9 @@ now secrets add open-node-key "[OPEN_NODE_KEY]" # generated in step 4
 now secrets add caveat-key "[CAVEAT_KEY]" # generated in step 6
 ```
 
-9. Run `now` in your project directory. Zeit will now deploy your now-boltwall service and return the uri where it is hosted. Save this and the caveat key (i.e. the passphrase created earlier in step 6)
+9. Run `now -e OPEN_NODE_KEY=@open-node-key -e CAVEAT_KEY=@caveat-key` in your project directory. Zeit will now deploy
+   your now-boltwall service and return the uri where it is hosted. Save this and the caveat key (i.e. the passphrase created earlier in step 6).
+   Learn more about secrets in `now` in their [docs](https://zeit.co/docs/v2/build-step#using-environment-variables-and-secrets).
 
 ## Time-based authorization
 
