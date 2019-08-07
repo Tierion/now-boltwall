@@ -1,5 +1,10 @@
-module.exports = (req, res) => {
-  return res.status(200).json({
-    message: 'This message is behind the paywall. Oh, and it appears you paid!',
+const boltwallApp = require('now-boltwall')
+
+boltwallApp.use(function(req, res) {
+  return res.json({
+    message:
+      'This message is protected and should only be visible when the appropriate invoice has been paid',
   })
-}
+})
+
+module.exports = boltwallApp

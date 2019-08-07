@@ -1,6 +1,8 @@
-# The Lightning Paywall Builder
+# The `now` Boltwall Builder
 
 An easy to deploy gateway for enabling payments and authentication with other compatible applications.
+The package simply exposes a simple expressjs server with the last middleware being a `boltwall` paywall.
+Any middleware used after it will be subject to the paywall
 
 ## Usage
 
@@ -13,36 +15,54 @@ you want behind the paywall[1]. Make sure you have [now](https://zeit.co/now) an
 $ now -e OPEN_NODE_KEY=[OpenNode API Key] -e CAVEAT_KEY=[Macaroon Signing Key]
 ```
 
-See section below on [architecture](#architecture) for more on what these environment
-variables are for.
+A self-hosted node is also supported though additional configs are required.
+See [`boltwall`](https://github.com/boltwall-org/boltwall) for more information on configuration.
+
+### Authorization Flow and REST API
+
+Information about the lightning node to interact with can be retrieved via the endpoint `GET */node`
+
+In order to get access to a protected endpoint the client must:
+
+1. Generate an invoice at `POST */invoice` with body containing
+   [relevant properties](https://app.swaggerhub.com/apis-docs/prism8/boltwall/1.0.0#/default/generateInvoice)
+1. Pay the invoice request returned from the above call using your lightning node
+1. `GET */invoice` to check status and get discharge macaroon (this will also be attached to the current
+   client's session)
+1. Protected content is now accessible for the amount of time paid for.
+
+Check out the [REST API docs](https://app.swaggerhub.com/apis-docs/prism8/boltwall/1.0.0#/) for
+additional information.
 
 ## Overview
 
-The Lightning Paywall Builder is a relatively simple lambda service built with Zeit's Now service. Currently,
-the API supports the specific use case of interacting with the Prism Reader application. It serves two primary functions:
+The Boltwall Builder is a relatively simple lambda service built with Zeit's Now service.
+It serves two primary functions:
 
-1. Generate invoices for payments based off of received criteria (time based- 1 satoshi/second)
-2. Supports 3rd party, OAuth-style authentication by returning a discharge macaroon after successful payment
+1. Generate invoices for payments based off of received criteria (time based by default: 1 satoshi/second)
+2. Supports 3rd party, oAuth-style authentication by returning a discharge macaroon after successful payment
 
 In practice, what this means is that you can put this API layer in front of a compatible lightning node
-(currently the ln-builder only supports the [OpenNode API](https://developers.opennode.co/)) to provide
-users with an authorization that can be used in another application.
+(either hosted via OpenNode or your own lnd node) to provide users with an authorization that can be used in another application or as a paywall in front of your own protected content.
 
-In the case of [Prism](https://prismreader.app), the app is waiting until a user has authenticated with
+[Prism](https://prismreader.app) is an example of a 3rd party application that lets users host their own
+oAuth-like authentication payment systems. In this case, the app is waiting until a user has authenticated with
 the owner of a document that is being shared on the platform. The user pays the owner of the content, which
-authenticates you with the app.
+authenticates you with the app. With the `now-boltwall` module, you can quickly spin up your own paywall
+that Prism can use for authenticating time-based access or simply use it as a paywall in front of your own
+protected content.
 
 ## Installation
 
-Setting up your own ln-builder payments gateway can be done in just a few steps (most are related to creating accounts
-to enable deployment).
+Setting up your own ln-builder payments gateway can be done in just a few steps (most are related to
+creating accounts to enable deployment).
 
 #### Setup Zeit
 
 1. Create a [free Zeit account](https://zeit.co/signup) for serverless deployments
 2. [Install the `now` cli](https://zeit.co/download) for deploying projects directly from your computer
 
-#### Setup Open Node
+#### Setup Open Node (altneratively can get the configs for your own LND node)
 
 3. [Create an OpenNode account](https://dev.opennode.co/dashboard) on their dev platform [2]
 4. Generate an API key to authenticate with your OpenNode dev account. This will allow you to generate invoices
@@ -51,30 +71,31 @@ to enable deployment).
 #### Setup deployment
 
 5. In the project where you want to enable the paywall, setup a `now.json`
-   configuration file, and use the `now-boltwall` builder for the endpoint
+   configuration file, and use the `@now/node` builder for the endpoint
    you would like protected. See `example/now.json` in this repo for a sample
-   route that is protected behind the `/api/protected` endpoint.
-6. Generate or come up with another passphrase. This is called your `Caveat Key` and is used to sign
+   route that is protected behind the `/api` endpoint.
+6. Copy the `example/index.js` file for a route that will only be accessible when a
+   a client has properly paid an invoice.
+7. Generate or come up with another passphrase. This is called your `Caveat Key` and is used to sign
    discharge macaroons so third parties can verify this came from your server.
-7. Next we need to save our secrets for deployment. Once the `now` cli is installed, run the following command.
-   Make sure to replace anything in brackets `[ ]` with your own secrets generated above
+8. Next we need to save our secrets for deployment. Once the `now` cli is installed, run the following command
+   (Make sure to replace anything in brackets `[ ]` with your own secrets generated above):
 
 ```bash
 now secrets add open-node-key "[OPEN_NODE_KEY]" # generated in step 4
 now secrets add caveat-key "[CAVEAT_KEY]" # generated in step 6
 ```
 
-8. Run `now` in your project directory. Zeit will now deploy your ln-builder service and return the uri where it is hosted.
-   Save this and the caveat key (i.e. the passphrase created earlier in step 6)
+9. Run `now` in your project directory. Zeit will now deploy your now-boltwall service and return the uri where it is hosted. Save this and the caveat key (i.e. the passphrase created earlier in step 6)
 
-## Architecture
+## Time-based authorization
 
-The below image should give an idea of the authentication flow between the ln-builder api, lightning node,
-3rd party App requesting the authentication, and the client being authenticated.
-![ln builder diagram](https://raw.githubusercontent.com/bucko13/now-boltwall/master/ln-builder-diagram.jpg 'diagram')
+By default `now-boltwall` will use time-based authorization, giving 1 second of access for every 1 satoshi
+paid. This can be disabled with the environment variable `TIME_CAVEAT` set to `false`.
 
-[1]: Full paywall functionality isn't officially supported yet. Currently,
-content is managed on another platform and this lambda service gives you an endpoint
-for other services to interact with.
-[2]: **NOTE** the dev platform interacts with the Lightning Network on testnet. Currently only testnet
-is supported but mainnet would be trivial to add in in the future.
+## Additional Information
+
+See more about the API [here](https://app.swaggerhub.com/apis-docs/prism8/boltwall/1.0.0#/)
+
+Read more about how `boltwall` works and how you can use `boltwall` directly as a middleware in your own
+`expressjs` application [here](https://github.com/boltwall-org/boltwall)
