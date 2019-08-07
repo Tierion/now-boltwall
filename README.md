@@ -91,4 +91,4 @@ paid. This can be disabled with the environment variable `TIME_CAVEAT` set to `f
 See more about the API [here](https://app.swaggerhub.com/apis-docs/prism8/boltwall/1.0.0#/)
 
 Read more about how `boltwall` works and how you can use `boltwall` directly as a middleware in your own
-`expressjs` application [here](https://github.com/boltwall-org/boltwall)
+`expressjs` application [here](https://github.com/Tierion/boltwall)
