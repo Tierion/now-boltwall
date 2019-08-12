@@ -43,5 +43,4 @@ jspm_packages
 .DS_Store
 
 example/app.js
-example/package.json
 example/yarn*
