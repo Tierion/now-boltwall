@@ -8,6 +8,12 @@ To learn more about `boltwall`, checkout the module's [documentation](https://gi
 for detailed information on its API, using in standalone server, how it uses macaroons for authorization,
 and much more.
 
+## System Requirements
+
+- `now` v2
+- `node >0.10.0` (note this _must_ be in your package.json's engines as boltwall relies on some newer node
+  features)
+
 ## Usage
 
 Copy the `example` directory in this project. `index.js` exposes the api endpoint
@@ -92,3 +98,14 @@ See more about the API [here](https://app.swaggerhub.com/apis-docs/prism8/boltwa
 
 Read more about how `boltwall` works and how you can use `boltwall` directly as a middleware in your own
 `expressjs` application [here](https://github.com/Tierion/boltwall)
+
+## Troubleshooting
+
+If you get an error from Zeit, you'll want to log in to your [Zeit dashboard](https://zeit.co) and
+check the logs for your deployment.
+
+### `ReferenceError: BigInt is not defined`
+
+If you see this in your Zeit logs then you need to make sure you added an `engines` field to your
+deployment's package.json and set the minimum node version to `>0.10.0`. See the package.json
+in the `example` directory for an example.
