@@ -473,10 +473,10 @@ bolt07@1.4.2:
   dependencies:
     bn.js "5.0.0"
 
-boltwall@^2.0.9:
-  version "2.0.9"
-  resolved "https://registry.yarnpkg.com/boltwall/-/boltwall-2.0.9.tgz#29108e9ad3624e5135412453ecd0b19dad5b153d"
-  integrity sha512-oeTj7kKHvZOHX3px7XG21Q+r1hO9zx/HQCSE2hOjhf8Eek78pG/P0zPHOG0eOLxi39D9Rx4BNR94VR3SV3qEkw==
+boltwall@^2.0.10:
+  version "2.0.10"
+  resolved "https://registry.yarnpkg.com/boltwall/-/boltwall-2.0.10.tgz#a5e9f54e52159a58fcae6350fddfa9094014319f"
+  integrity sha512-PoPeMmlskWygqIFD8jBqI7ZqHyV/wyj7/eLIOpcKUreyoGLKwaiKcFJh4yQGiI2uHs82FLBsRtAemyYPsDB/hQ==
   dependencies:
     compose-middleware "5.0.1"
     cookie-session "1.3.3"
