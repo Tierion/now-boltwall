@@ -7,6 +7,7 @@ const dotenv = require('dotenv')
 
 const { testNow } = require('./helpers')
 const { CONFIGS } = require('./constants')
+const { deployQuestions } = require('./questions')
 
 async function deploy(name, cmdObject) {
   const useEnv = cmdObject.env
@@ -21,56 +22,29 @@ async function deploy(name, cmdObject) {
 
   let envPath
 
-  // if no path passed then we look for one in cwd
-  if (useEnv && typeof useEnv === 'boolean')
-    envPath = path.join(process.cwd(), '.env')
-  else if (useEnv) envPath = path.join(useEnv, '.env')
-
-  if (useEnv && !existsSync(envPath)) {
-    return console.log(
-      chalk.red.bold(`No .env file found: ${path.dirname(envPath)}`)
-    )
-  }
-
-  const answers = await prompt([
-    {
-      type: 'confirm',
-      name: 'customConfigs',
-      message: 'Use custom restriction configs (e.g. time or origin based)?',
-    },
-    {
-      type: 'list',
-      name: 'config',
-      when: hash => hash.customConfigs,
-      message:
-        'Choose a pre-build configuration for access restrictions (see https://github.com/Tierion/boltwall for more information):',
-      choices: [
-        { name: 'None', value: false },
-        { name: 'TIME_CAVEAT_CONFIGS', value: 'time' },
-        { name: 'ORIGIN_CAVEAT_CONFIGS', value: 'origin' },
-      ],
-    },
-    {
-      type: 'number',
-      name: 'minAmount',
-      mesage: 'Minimum amount for invoice generation',
-      default: 1,
-    },
-    {
-      type: 'list',
-      name: 'type',
-      message: 'Normal paywall or hodl? (if unsure pick normal)',
-      choices: [
-        { name: 'Normal', value: 'normal' },
-        { name: 'HODL Invoice', value: 'hodl' },
-      ],
-    },
-  ])
-
+  // set config with env if enabled
   if (useEnv) {
+    // use current working directory if no file path passed
+    if (typeof useEnv === 'boolean') envPath = path.join(process.cwd(), '.env')
+    // if env includes .env file then use as is, otherwise, assume directory and add .env extension
+    else
+      envPath = path.basename(useEnv).includes('.env')
+        ? useEnv
+        : path.join(useEnv, '.env')
+
+    // if can't find the env file then end script
+    if (!existsSync(envPath)) {
+      return console.log(
+        chalk.red.bold(`No .env file found: ${path.dirname(envPath)}`)
+      )
+    }
+
+    // set configs and process.env using .env file
     const { parsed: envVars } = dotenv.config({ path: envPath })
     configs = { ...envVars }
   }
+
+  const answers = await prompt(deployQuestions)
 
   if (useSecrets) {
     const secrets = execSync('now secrets list').toString()
@@ -92,8 +66,13 @@ async function deploy(name, cmdObject) {
 
   if (answers.minAmount) configs.MIN_AMOUNT = answers.minAmount
   if (answers.type === 'hodl') configs.BOLTWALL_HODL = true
+  if (answers.route) configs.BOLTWALL_PATH = answers.route
+  if (answers.protected) configs.BOLTWALL_PROTECTED_URL = answers.protected
 
-  let cmd = `now`
+  runNow(configs)
+}
+
+function runNow(configs) {
   const options = []
 
   if (name) {

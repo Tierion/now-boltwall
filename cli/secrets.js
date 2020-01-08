@@ -7,38 +7,9 @@ const os = require('os')
 
 const { testNow } = require('./helpers')
 const { CONFIGS } = require('./constants')
-
+const { secretsQuestions } = require('./questions')
 async function secrets() {
-  const answers = await prompt([
-    {
-      type: 'list',
-      name: 'source',
-      message: 'How would you like to load your LND connection details?',
-      choices: [
-        { name: 'BTCPay Server', value: 'btcpay' },
-        { name: 'File path or raw values', value: 'raw' },
-        { name: 'Open node API key', value: 'opennode' },
-      ],
-    },
-    {
-      type: 'confirm',
-      name: 'now',
-      message:
-        'Save in now secrets? (this will allow for future deployments without reconfiguring)',
-    },
-    {
-      type: 'confirm',
-      name: 'env',
-      message: 'Save in env file?',
-    },
-    {
-      type: 'input',
-      name: 'filePath',
-      when: hash => hash.env,
-      message: `Where would you like to save the env file? (${process.cwd()})`,
-      default: process.cwd(),
-    },
-  ])
+  const answers = await prompt(secretsQuestions)
 
   let configs = {
     ...CONFIGS,

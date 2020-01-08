@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 const program = require('commander')
 const pkg = require('../package.json')
 const chalk = require('chalk')
@@ -20,7 +19,7 @@ program
   .option('-s --secrets', 'Use now secrets for configs')
   .option(
     '-e --env [envPath]',
-    'Use env vars and .env file (at envPath if set) for configs'
+    'Use env vars and .env file (at envPath if set, defaults to current working dir) for configs'
   )
   .description(
     'Deploy an instance using now-cli. Pass custom name if not using directory name.'
