@@ -1,6 +1,7 @@
 const express = require('express')
 const cors = require('cors')
-var bodyParser = require('body-parser')
+const bodyParser = require('body-parser')
+const path = require('path')
 const {
   boltwall,
   TIME_CAVEAT_CONFIGS,
@@ -23,7 +24,7 @@ let configs = {}
 const {
   TIME_CAVEAT,
   ORIGIN_CAVEAT,
-  MIN_AMOUNT,
+  MIN_AMOUNT = 10,
   BOLTWALL_HODL,
   BOLTWALL_PATH = 'protected',
   BOLTWALL_PROTECTED_URL,
@@ -34,7 +35,13 @@ else if (ORIGIN_CAVEAT === true) configs = ORIGIN_CAVEAT_CONFIGS
 
 if (MIN_AMOUNT) configs.minAmount = MIN_AMOUNT
 
-if (BOLTWALL_HODL) configs.hodl = true
+// eslint-disable-next-line no-extra-boolean-cast
+if (BOLTWALL_HODL === 'true') configs.hodl = true
+
+app.use((req, resp, next) => {
+  console.log(req.method, req.path)
+  next()
+})
 
 app.use(boltwall(configs))
 
@@ -45,7 +52,12 @@ if (BOLTWALL_PROTECTED_URL) {
     console.log(
       'Request paid for and authenticated. Forwarding to protected route.'
     )
-    console.log(`${req.method} ${req.path}`)
+    console.log(
+      `Forwarding request: ${req.method} ${path.join(
+        BOLTWALL_PROTECTED_URL,
+        req.path
+      )}`
+    )
     apiProxy.web(req, res, {
       target: BOLTWALL_PROTECTED_URL,
       secure: true,
@@ -57,11 +69,11 @@ if (BOLTWALL_PROTECTED_URL) {
   protectedRoute = (req, res) =>
     res.json({
       message:
-        'Protected route! This message will only be returned if an invoice has been paid',
+        'Fallback protected route! This message will only be returned if an invoice has been paid',
     })
 }
 
-app.use(`/api/${BOLTWALL_PATH}`, protectedRoute)
+app.use(path.join('/api', BOLTWALL_PATH), protectedRoute)
 app.all('*', (req, res) => res.status(404).send('Resource not found'))
 
 module.exports = app

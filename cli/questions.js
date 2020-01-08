@@ -26,7 +26,8 @@ const secretsQuestions = [
     message:
       'Session secret. If not provided, one will be randomly generated for you (recommended).',
     validate: input => {
-      if (input.length < 64) return 'Must be at least 32 bytes long'
+      if (input.length > 0 && input.length < 64)
+        return 'Must be at least 32 bytes long'
       return true
     },
   },

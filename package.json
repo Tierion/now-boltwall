@@ -6,6 +6,10 @@
   "author": "Bucko",
   "license": "MIT",
   "private": false,
+  "preferGlobal": true,
+  "bin": {
+    "now-boltwall": "./cli/index.js"
+  },
   "dependencies": {
     "body-parser": "1.19.0",
     "boltwall": "^5.0.1",

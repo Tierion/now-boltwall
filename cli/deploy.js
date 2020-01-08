@@ -69,10 +69,10 @@ async function deploy(name, cmdObject) {
   if (answers.route) configs.BOLTWALL_PATH = answers.route
   if (answers.protected) configs.BOLTWALL_PROTECTED_URL = answers.protected
 
-  runNow(configs)
+  runNow(configs, name)
 }
 
-function runNow(configs) {
+function runNow(configs, name) {
   const options = []
 
   if (name) {
