@@ -2,7 +2,7 @@
   "name": "now-boltwall",
   "version": "3.0.0",
   "main": "index.js",
-  "description": "Zeit lambda deployment for a Nodejs Lightning-powered Paywall",
+  "description": "A command line tool that makes it easy to configure and deploy a lightning-enabled paywall server w/ boltwall",
   "author": "Bucko",
   "license": "MIT",
   "private": false,
