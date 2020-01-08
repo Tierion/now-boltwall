@@ -6,7 +6,7 @@ const secretsQuestions = [
     choices: [
       { name: 'BTCPay Server', value: 'btcpay' },
       { name: 'File path or raw values', value: 'raw' },
-      { name: 'Open node API key', value: 'opennode' },
+      { name: 'OpenNode API key', value: 'opennode' },
     ],
   },
   {

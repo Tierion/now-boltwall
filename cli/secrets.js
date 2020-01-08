@@ -77,7 +77,7 @@ async function configsFromBTCPay() {
     type: 'input',
     name: 'url',
     message:
-      'URL of BTCPay Server config (See readme for instructions: https://github.com/tierion/now-boltwall):',
+      'URL of BTCPay Server config (See readme for instructions: https://github.com/tierion/now-boltwall#btcpay-server-configuration):',
     validate: input => {
       if (input.indexOf('https://') !== 0) {
         return chalk.red('Invalid URL, must start with "https://"')

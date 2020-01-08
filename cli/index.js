@@ -9,7 +9,13 @@ program.version(pkg.version).description(pkg.description)
 
 program
   .command('secrets')
-  .description('Set environment variable secrets for LND connections')
+  .description(
+    `Set environment variable secrets for LND connections. Supports 3 connection options:
+- BTCPay Server
+- File path or raw values (hex or base64)
+- OpenNode API Key
+`
+  )
   .alias('s')
   .action(secrets)
 

@@ -1,111 +1,253 @@
-# The `now` Boltwall Builder
+# The Boltwall Deployment Toolkit
 
-An easy to deploy gateway for enabling payments and authentication with other compatible applications.
-The package simply exposes an expressjs server with the last middleware being a `boltwall` paywall.
-Any middleware used after it will be subject to the paywall.
+`now-boltwall` is a command line tool that makes it easy to configure and deploy
+a lightning enabled paywall server using [boltwall](https://github.com/Tierion/boltwall) with
+no coding experience and in just a couple minutes.
 
-To learn more about `boltwall`, checkout the module's [documentation](https://github.com/tierion/boltwall)
-for detailed information on its API, using in standalone server, how it uses macaroons for authorization,
-and much more.
+Using `now-boltwall` you can deploy a live, TLS-secured server that allows you to get
+paid to your lightning node, _for free_.
+
+**SUPPORTS**
+
+- Easy configuration to connect with BTCPay Server
+- Time and origin-based access restrictions
+- Add a paywall to existing endpoints
+- OpenNode configuration for a paywall with custodial lightning node
+- Easy re-deployment with by automatically saving env secrets to the `now` environment
+- Automatically generate `.env` files to save configuration
+- HODL invoices for escrow-like support and split payments
+- Account-less authorization using LSATs
+
+To learn more about Boltwall, checkout the module's [documentation](https://github.com/tierion/boltwall)
+for detailed information on its API, using it in a standalone server, about how it uses macaroons
+and LSATs for authorization, and much more.
+
+**TABLE OF CONTENTS**
+
+- [The Boltwall Deployment Toolkit](#the-boltwall-deployment-toolkit)
+  - [System Requirements](#system-requirements)
+  - [Installation](#installation)
+  - [Usage](#usage)
+    - [Secrets](#secrets)
+    - [Deploy](#deploy)
+  - [Configurations](#configurations)
+    - [Connection Credentials](#connection-credentials)
+    - [Boltwall Configs](#boltwall-configs)
+    - [Server Configs](#server-configs)
+    - [BTCPay Server Configuration](#btcpay-server-configuration)
+  - [API](#api)
+      - [GET /api/node](#get-apinode)
+      - [[METHOD] /api/[BOLTWALL_PATH]](#method-apiboltwallpath)
+      - [POST /api/invoice](#post-apiinvoice)
+      - [GET /api/invoice](#get-apiinvoice)
+  - [Additional Information](#additional-information)
+  - [Troubleshooting](#troubleshooting)
 
 ## System Requirements
 
-- `now` v2
-- `node >0.10.0` (note this _must_ be in your package.json's engines as boltwall relies on some newer node
-  features)
-
-## Usage
-
-Copy the `example` directory in this project. `index.js` exposes the api endpoint
-you want behind the paywall. Make sure you have [now](https://zeit.co/now) and
-[OpenNode](https://opennode.co) setup, then in the directory run:
-
-```bash
-# in the project directory copied from `example`
-$ now -e OPEN_NODE_KEY=[OpenNode API Key] -e CAVEAT_KEY=[Macaroon Signing Key]
-```
-
-The command will give you a URL where your API endpoints can be accessed. You can read the
-[API docs](https://app.swaggerhub.com/apis-docs/prism8/boltwall) for more details on available interactions.
-
-## Overview
-
-The Boltwall Builder is a relatively simple lambda service built with Zeit's Now service that makes it
-super easy to deploy paywalls via serverless lambdas.
-
-These can serve two primary functions (the same as the `boltwall` package its built with):
-
-1. Generate invoices for payments based off of received criteria (time based by default: 1 satoshi/second)
-2. Supports 3rd party, oAuth-style authentication by returning a discharge macaroon after successful payment
-
-In practice, what this means is that you can put this API layer in front of a compatible lightning node
-(either hosted via OpenNode or your own lnd node) to provide users with an authorization that can be used in another
-application or as a paywall in front of your own protected content.
-
-[Prism](https://prismreader.app) is an example of a 3rd party application that lets users host their own
-oAuth-like authentication payment systems. In this case, the app is waiting until a user has authenticated with
-the owner of a document that is being shared on the platform. The user pays the owner of the content, which
-authenticates you with the app. With the `now-boltwall` module, you can quickly spin up your own paywall
-that Prism can use for authenticating time-based access or simply use it as a paywall in front of your own
-protected content.
+- `now-cli` and an account with zeit's `now` service
+- `node >0.10.0`
 
 ## Installation
 
-Setting up your own now-boltwall payments gateway can be done in just a few steps (and most are related to
-creating accounts to enable deployment).
+This assumes you already have your own lightning node running [lnd](https://lightning.engineering) on its own, with [BTCPay Server](https://btcpayserver.org/) or with [OpenNode](https://www.opennode.com/)
 
-#### Setup Zeit
+If you've never used zeit's `now` before, create a [Zeit account](https://zeit.co/signup)
+for free, serverless deployments.
 
-1. Create a [free Zeit account](https://zeit.co/signup) for serverless deployments
-2. [Install the `now` cli](https://zeit.co/download) for deploying projects directly from your computer
-
-#### Setup Open Node (altneratively can get the configs for your own LND node)
-
-3. [Create an OpenNode account](https://dev.opennode.co/dashboard) on their dev platform [2]
-4. Generate an API key to authenticate with your OpenNode dev account. This will allow you to generate invoices
-   and check on the status of payments. **Make sure you save this as you will need it for later steps**
-
-#### Setup deployment
-
-5. In the project where you want to enable the paywall, setup a `now.json`
-   configuration file, and use the `@now/node` builder for the endpoint
-   you would like protected. See `example/now.json` in this repo for a sample
-   route that is protected behind the `/api` endpoint.
-6. Copy the `example/index.js` file for a route that will only be accessible when a
-   a client has properly paid an invoice.
-7. Generate or come up with another passphrase. This is called your `Caveat Key` and is used to sign
-   discharge macaroons so third parties can verify this came from your server.
-8. Next we need to save our secrets for deployment. Once the `now` cli is installed, run the following command
-   (Make sure to replace anything in brackets `[ ]` with your own secrets generated above):
+Next, install `now-cli`:
 
 ```bash
-now secrets add open-node-key "[OPEN_NODE_KEY]" # generated in step 4
-now secrets add caveat-key "[CAVEAT_KEY]" # generated in step 6
+# npm i -g now // to install with npm
+$ yarn global add now
 ```
 
-9. Run `now -e OPEN_NODE_KEY=@open-node-key -e CAVEAT_KEY=@caveat-key` in your project directory. Zeit will now deploy
-   your now-boltwall service and return the uri where it is hosted. Save this and the caveat key (i.e. the passphrase created earlier in step 6).
-   Learn more about secrets in `now` in their [docs](https://zeit.co/docs/v2/build-step#using-environment-variables-and-secrets).
+Then do the same for `now-boltwall`:
 
-## Time-based authorization
+```bash
+# npm i -g now-boltwall // to install with npm
+$ yarn global add now-boltwall
+```
 
-By default `now-boltwall` will use time-based authorization, giving 1 second of access for every 1 satoshi
-paid. This can be disabled with the environment variable `TIME_CAVEAT` set to `false`.
+That's it! You're ready to go.
+
+## Usage
+
+Run the command `now-boltwall --help` or `now-boltwall` with no other commands
+to get usage instructions:
+
+```bash
+$ now-boltwall --help
+Usage:  [options] [command]
+
+Zeit lambda deployment for a Nodejs Lightning-powered Paywall
+
+Options:
+  -V, --version              output the version number
+  -h, --help                 output usage information
+
+Commands:
+  secrets|s                  Set environment variable secrets for LND connections
+  deploy|d [options] [name]  Deploy an instance using now-cli. Pass custom name if not using directory name.
+
+```
+
+### Secrets
+
+```bash
+$ now-boltwall secrets
+```
+
+Generates and saves configurations for connecting boltwall to a lightning node.
+Simply run `now-boltwall secrets` and the CLI will walk you through the steps to generate
+(in the case of BTCPay Server) and save the credentials.
+
+The CLI offers two ways to persist the secrets:
+
+- using `now` secrets (see [documentation](https://zeit.co/docs/v2/serverless-functions/env-and-secrets/?query=secrets) for more information)
+- In an `.env` file
+
+`now` secrets are _required_ for deploying to a live server. The `.env` option can be helpful for saving references
+to secrets or running a local server with `now dev`.
+
+**NOTE**: When generating new secrets or an `.env` file, any existing values will be overwritten.
+This is to avoid any conflicting configurations and because `now secrets` only supports saving
+one secret of a given name at a time.
+
+**NOTE 2:** A `now secret` remains hidden forever. While it can be passed to a deployment, there is no way
+for a developer to read a previously set secret.
+
+### Deploy
+
+```bash
+$ now-boltwall deploy --help
+Usage: now-boltwall deploy|d [options] [name]
+
+Deploy an instance using now-cli. Pass custom name if not using directory name.
+
+Options:
+  -s --secrets        Use now secrets for configs
+  -e --env [envPath]  Use env vars and .env file (at envPath if set, defaults to current working dir) for configs
+  -h, --help          output usage information
+
+```
+
+`now-boltwall deploy` will deploy a live boltwall instance to zeit's server, giving you
+a URL where you can access it.
+
+Both secrets and a `.env` file are supported for passing configurations to the deployment. If
+both are enabled (e.g. with `now-boltwall deploy -es`) then secrets will take precedence.
+
+In addition to the credentials Boltwall needs to connect to your lightning node, there are
+other parameters you can pass to customize your boltwall deployment. Any options that are not
+present in a `.env` file or `now secrets` will be asked about by the CLI before deployment.
+Learn more about all available [configurations](#configurations) further below.
+
+The `name` parameter will determine the name of the project used for deployment and will be used
+in the final URL. If none is passed, `name` defaults to the name of the project directory (`now-boltwall`).
+
+## Configurations
+
+The following configurations are available to be set for deployment. Save them in your `.env`
+file to persist across deployments (and between `dev` and `prod`). They can also be
+set via `now secrets` by setting the _lowercase_ variable name equivalent,
+but cannot be read afterward.
+
+Remember that if you save `now-boltwall secrets` in a `.env` file at the same location,
+the older one will be ovewritten.
+
+If not set in either location, the CLI will ask you your preferences before deployment (but
+the values will not be preserved for future deployments).
+
+### Connection Credentials
+
+Learn how to retrieve these values from your own node with this
+[tool](https://lightningjoule.com/tools/node-info). `now-boltwall secrets` will generate
+these automatically for you if connecting to a [BTCPay Server](#btcpay-server-configuration).
+
+- `LND_SOCKET`- e.g. _[host]:[port]_ where the lightning code can be reached
+- `LND_TLS_CERT` - hex or base64 encoded string representing the TLS_CERT for nodes where this is enabled
+- `LND_MACAROON`- hex or base64 encoded string of the admin macaroon required for authenticating lnd requests
+
+### Boltwall Configs
+
+- `TIME_CAVEAT`- Restricts access to endpoint by time: 1 second for every satoshi paid
+- `ORIGIN_CAVEAT`- Restricts access to only requests made from the IP that the original
+  request was made from
+- `MIN_AMOUNT`- Minimum amount any invoice can be generated for
+- `BOLTWALL_HODL`- Whether or not to enable HODL invoices. This is an advanced API, so if you
+  are unsure what it does or why you would need, keep this disabled. Read more about hodl invoices
+  in Boltwall [here](https://github.com/Tierion/boltwall#hodl-invoices).
+
+### Server Configs
+
+- `BOLTWALL_PATH`- Path where the protected content can be accessed (and will return a `402` with
+  LSAT challenge when unauthenticated). Prefixed with `/api` and defaults to `protected`, so the
+  default path will be `/api/protected`
+- `BOLTWALL_PROTECTED_URL`- This is the endpoint that is protected by boltwall and accessed
+  via `/api/[BOLTWALL_PATH]`. The server will proxy authenticated requests to this URL and can
+  be any URL you want. Try it out with the PokéAPI as a test (https://pokeapi.co/api/v2/) and then
+  make a paid request to `/api/protected/pokemon/pikachu`
+
+### BTCPay Server Configuration
+
+**IMPORTANT:** Boltwall only currently supports grpc connections with LND, so you will need
+to make sure your BTCPay Server is configured correctly.
+
+To get the configuration for your node, all `now-boltwall` needs is a config url. This can be
+retrieved by following these simple steps:
+
+1. Login to your BTCPay server
+2. Click "Server Settings" from the top menu
+3. Click on "Services" from the side menu
+4. Click "See information" on the row that says "_BTC LND (gRPC server)_"
+5. Click button "Show QR Code"
+6. Under the generated QR code, there will be a link to see the code's information. Click that link (should be linked on the word "here")
+7. This a URL that only remains valid for ~10 minutes so as not to leak sensitive information.
+   **DO NOT SHARE THIS WITH ANYONE**. Access to this information allows for full access to your
+   lightning node.
+8. Copy this url and paste (or re-type) it when asked in `now-boltwall secrets`.
+
+## API
+
+This is the normal [Boltwall API](https://app.swaggerhub.com/apis-docs/boltwall/boltwall/2.0.0-beta-oas3)
+that is exposed with a deployed now-boltwall instance.
+
+Read the full [boltwall documentation](https://github.com/Tierion/boltwall) for additional details.
+
+#### `GET /api/node`
+
+Retrieve information about your node including alias, public key, access uris and channel information.
+
+#### `[METHOD] /api/[BOLTWALL_PATH]`
+
+Access protected content. If no valid LSAT is provided in `Authorized` header than a
+`402: Payment Required` response will be sent instead.
+
+#### `POST /api/invoice`
+
+Sent with `{ amount: 30 }` will generate a new invoice for 30 satoshis.
+
+#### `GET /api/invoice`
+
+Sent with a valid LSAT in the header will retrieve the information for the given invoice
+indicated by the paymentHash encoded in the LSAT.
 
 ## Additional Information
 
-See more about the API [here](https://app.swaggerhub.com/apis-docs/prism8/boltwall/1.0.0#/)
+- See more about the API in the [swagger docs](https://app.swaggerhub.com/apis-docs/boltwall/boltwall/2.0.0-beta-oas3)
 
-Read more about how `boltwall` works and how you can use `boltwall` directly as a middleware in your own
-`expressjs` application [here](https://github.com/Tierion/boltwall)
+- Read more about how `boltwall` works and how you can use `boltwall` directly as a middleware in your own
+  `expressjs` application [here](https://github.com/Tierion/boltwall)
+
+- Use LSATs in your own application using the [`lsat-js`](https://github.com/Tierion/lsat-js) library
+- Create, consume, parse, and manipulate raw LSATs with the
+  [LSAT Playground](https://lsat-playground.bucko.now.sh/)
 
 ## Troubleshooting
 
-If you get an error from Zeit, you'll want to log in to your [Zeit dashboard](https://zeit.co) and
-check the logs for your deployment.
-
-### `ReferenceError: BigInt is not defined`
-
-If you see this in your Zeit logs then you need to make sure you added an `engines` field to your
-deployment's package.json and set the minimum node version to `>0.10.0`. See the package.json
-in the `example` directory for an example.
+- If you get an error from Zeit, you'll want to log in to your [Zeit dashboard](https://zeit.co) and
+  check the logs for your deployment.
+- If an LSAT that should be valid is getting `Unauthorized` responses, make sure that the
+  `SESSION_SECRET` is getting persisted. Macaroons are signed and verified with this value.
+  If it changes between restarts, old LSATs will not return the same signature.
