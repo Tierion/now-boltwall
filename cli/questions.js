@@ -24,7 +24,7 @@ const secretsQuestions = [
     type: 'input',
     name: 'secret',
     message:
-      'Session secret. If not provided, one will be randomly generated for you (recommended).',
+      'Session secret. If not provided, one will be randomly generated for you (recommended):',
     validate: input => {
       if (input.length > 0 && input.length < 64)
         return 'Must be at least 32 bytes long'
@@ -45,7 +45,7 @@ const deployQuestions = [
     type: 'input',
     name: 'route',
     message:
-      'Route protected by boltwall, i.e. path that requires payment to access will be of form `/api/[ENTRY]`:',
+      'Route protected by boltwall, i.e. path that requires payment to access. Will be of form `/api/[ENTRY]`:',
     default: 'protected',
     when: () => !process.env.BOLTWALL_PATH, // only ask if it's not set in the env
   },

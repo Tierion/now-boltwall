@@ -83,7 +83,7 @@ async function configsFromBTCPay() {
         return chalk.red('Invalid URL, must start with "https://"')
       }
       try {
-        execSync(`curl ${input}`)
+        execSync(`curl -s ${input}`)
         return true
       } catch (err) {
         return chalk.red('Could not reach url. Please check it is valid')
@@ -91,8 +91,7 @@ async function configsFromBTCPay() {
     },
   })
 
-  const configs = await readConfig(url)
-  return configs
+  return await readBtcPayConfig(url)
 }
 
 async function configsFromInput() {
@@ -169,7 +168,7 @@ function getCredential(cred) {
   }
 }
 
-async function readConfig(url) {
+async function readBtcPayConfig(url) {
   let config = execSync(`curl -s ${url}`)
 
   try {

@@ -1,7 +1,7 @@
 # The Boltwall Deployment Toolkit
 
 `now-boltwall` is a command line tool that makes it easy to configure and deploy
-a lightning enabled paywall server using [boltwall](https://github.com/Tierion/boltwall) with
+a lightning-enabled paywall server using [boltwall](https://github.com/Tierion/boltwall) with
 no coding experience and in just a couple minutes.
 
 Using `now-boltwall` you can deploy a live, TLS-secured server that allows you to get
@@ -57,14 +57,14 @@ for free, serverless deployments.
 
 Next, install `now-cli`:
 
-```bash
+```shell
 # npm i -g now // to install with npm
 $ yarn global add now
 ```
 
 Then do the same for `now-boltwall`:
 
-```bash
+```shell
 # npm i -g now-boltwall // to install with npm
 $ yarn global add now-boltwall
 ```
@@ -76,7 +76,7 @@ That's it! You're ready to go.
 Run the command `now-boltwall --help` or `now-boltwall` with no other commands
 to get usage instructions:
 
-```bash
+```shell
 $ now-boltwall --help
 Usage:  [options] [command]
 
@@ -94,7 +94,7 @@ Commands:
 
 ### Secrets
 
-```bash
+```shell
 $ now-boltwall secrets
 ```
 
@@ -119,7 +119,7 @@ for a developer to read a previously set secret.
 
 ### Deploy
 
-```bash
+```shell
 $ now-boltwall deploy --help
 Usage: now-boltwall deploy|d [options] [name]
 
@@ -235,14 +235,14 @@ indicated by the paymentHash encoded in the LSAT.
 
 ## Additional Information
 
-- See more about the API in the [swagger docs](https://app.swaggerhub.com/apis-docs/boltwall/boltwall/2.0.0-beta-oas3)
+- Learn more about the API in the [swagger docs](https://app.swaggerhub.com/apis-docs/boltwall/boltwall/2.0.0-beta-oas3)
 
-- Read more about how `boltwall` works and how you can use `boltwall` directly as a middleware in your own
+- Read about how `boltwall` works and how you can use it directly as a middleware in your own
   `expressjs` application [here](https://github.com/Tierion/boltwall)
 
-- Use LSATs in your own application using the [`lsat-js`](https://github.com/Tierion/lsat-js) library
+- Use LSATs in your own application with the [`lsat-js`](https://github.com/Tierion/lsat-js) library
 - Create, consume, parse, and manipulate raw LSATs with the
-  [LSAT Playground](https://lsat-playground.bucko.now.sh/)
+  [LSAT Playground](https://lsat-playground.bucko.now.sh/).
 
 ## Troubleshooting
 
