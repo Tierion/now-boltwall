@@ -4,6 +4,7 @@ const { execSync } = require('child_process')
 const { existsSync, readFileSync, writeFileSync } = require('fs')
 const path = require('path')
 const os = require('os')
+const crypto = require('crypto')
 
 const { testNow } = require('./helpers')
 const { CONFIGS } = require('./constants')
@@ -27,6 +28,12 @@ async function secrets() {
     configs = { ...configs, ...newConfigs }
   } catch (e) {
     return console.log(chalk.red.bold(e.message))
+  }
+
+  if (answers.secret) {
+    configs.SESSION_SECRET = answers.secret
+  } else {
+    configs.SESSION_SECRET = crypto.randomBytes(32).toString('hex')
   }
 
   if (answers.now) {

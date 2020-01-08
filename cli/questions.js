@@ -22,6 +22,16 @@ const secretsQuestions = [
   },
   {
     type: 'input',
+    name: 'secret',
+    message:
+      'Session secret. If not provided, one will be randomly generated for you (recommended).',
+    validate: input => {
+      if (input.length < 64) return 'Must be at least 32 bytes long'
+      return true
+    },
+  },
+  {
+    type: 'input',
     name: 'filePath',
     when: hash => hash.env,
     message: `Where would you like to save the env file? (${process.cwd()})`,
