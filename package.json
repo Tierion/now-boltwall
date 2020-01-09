@@ -1,20 +1,17 @@
 {
   "name": "now-boltwall",
   "version": "3.0.2",
-  "main": "./cli/index.js",
+  "main": "./index.js",
   "description": "A command line tool that makes it easy to configure and deploy a lightning-enabled paywall server w/ boltwall",
   "author": "Bucko",
   "license": "MIT",
   "private": false,
   "preferGlobal": true,
   "bin": {
-    "now-boltwall": "./bin/now-boltwall"
+    "now-boltwall": "./cli/index.js"
   },
   "scripts": {
-    "postversion": "git push && git push --tags",
-    "clean": "rm -rf bin",
-    "build": "npm run clean && ncc build ./cli/index.js -o ./bin/now-boltwall && chmod +rx ./bin/now-boltwall/index.js && cp -R now/ ./bin/now-boltwall/now",
-    "prepublish": "npm run build"
+    "postversion": "git push && git push --tags"
   },
   "dependencies": {
     "@zeit/ncc": "^0.21.0",

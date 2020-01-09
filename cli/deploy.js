@@ -73,24 +73,24 @@ async function deploy(name, cmdObject) {
 }
 
 function runNow(configs, name) {
-  const options = []
+  const args = []
 
   if (name) {
-    options.push('--name', name)
+    args.push('--name', name)
   }
 
   for (const key in configs) {
     if (configs[key]) {
       const option = `${key}=${configs[key]}`
-      options.push('-e', `${option}`)
+      args.push('-e', `${option}`)
     }
   }
 
-  console.log(chalk`Running with command: {bold.cyan now ${options.join(' ')}}`)
+  console.log(chalk`Running with command: {bold.cyan now ${args.join(' ')}}`)
 
-  options.push(path.join(__dirname, './now'))
+  // args.push(path.join(__dirname, '../now'))
 
-  const cp = spawn('now', options)
+  const cp = spawn('now', args, { cwd: path.join(__dirname, '../now-files') })
   cp.stdout.on('data', data => {
     console.log(`${data}`)
   })
