@@ -28,6 +28,7 @@ coverage
 build/Release
 dist
 public/build
+bin
 
 # Dependency directories
 node_modules

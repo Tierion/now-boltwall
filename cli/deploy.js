@@ -88,7 +88,7 @@ function runNow(configs, name) {
 
   console.log(chalk`Running with command: {bold.cyan now ${options.join(' ')}}`)
 
-  options.push(path.join(__dirname, '..'))
+  options.push(path.join(__dirname, './now'))
 
   const cp = spawn('now', options)
   cp.stdout.on('data', data => {
