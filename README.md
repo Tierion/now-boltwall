@@ -188,6 +188,9 @@ these automatically for you if connecting to a [BTCPay Server](#btcpay-server-co
   via `/api/[BOLTWALL_PATH]`. The server will proxy authenticated requests to this URL and can
   be any URL you want. Try it out with the PokéAPI as a test (https://pokeapi.co/api/v2/) and then
   make a paid request to `/api/protected/pokemon/pikachu`
+- `BOLTWALL_ORIGIN`- For CORS policy. If nothing is set, now-boltwall will default to setting 
+`origin:true` which allows requests from all origins. To restrict to a specific host, set this
+via the CLI or `.env` file.
 
 ### BTCPay Server Configuration
 

@@ -12,11 +12,6 @@ const httpProxy = require('http-proxy')
 const apiProxy = httpProxy.createProxyServer()
 const app = express()
 
-// express middleware
-app.use(cors())
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
-
 // retrieve and parse configs from process.env
 let configs = {}
 const {
@@ -26,14 +21,54 @@ const {
   BOLTWALL_HODL,
   BOLTWALL_PATH = 'protected',
   BOLTWALL_PROTECTED_URL,
+  BOLTWALL_ORIGIN,
 } = process.env
 
-if (TIME_CAVEAT === true) configs = TIME_CAVEAT_CONFIGS
-else if (ORIGIN_CAVEAT === true) configs = ORIGIN_CAVEAT_CONFIGS
+// express middleware
+const corsOptions = {
+  credentials: true,
+  origin: BOLTWALL_ORIGIN || true,
+  exposedHeaders: [
+    'Origin, X-Requested-With, Content-Type, Accept, WWW-Authenticate, Authorization',
+  ],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  preflightContinue: true,
+  optionsSuccessStatus: 204,
+  methods: ['GET', 'PUT', 'POST', 'DELETE', 'PATCH', 'OPTIONS'],
+}
 
-if (MIN_AMOUNT) configs.minAmount = MIN_AMOUNT
+app.use(cors(corsOptions))
 
-if (BOLTWALL_HODL === 'true') configs.hodl = true
+const boltwallPath = path.join('/api', BOLTWALL_PATH)
+
+app.options(boltwallPath, cors(corsOptions))
+
+// need to return 200 if in pre-flight request
+app.use(boltwallPath, (req, res, next) => {
+  if (req.method === 'OPTIONS') return res.sendStatus(200)
+  next()
+})
+
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+
+if (TIME_CAVEAT === 'true') {
+  console.log('Enabling boltwall time caveat config')
+  configs = TIME_CAVEAT_CONFIGS
+} else if (ORIGIN_CAVEAT === 'true') {
+  console.log('Enabling boltwall origin caveat config')
+  configs = ORIGIN_CAVEAT_CONFIGS
+}
+
+if (MIN_AMOUNT) {
+  console.log(`Setting minimum amount for invoices to ${MIN_AMOUNT} satoshis.`)
+  configs.minAmount = MIN_AMOUNT
+}
+
+if (BOLTWALL_HODL === 'true') {
+  console.log('HODL invoices enabled')
+  configs.hodl = true
+}
 
 app.use((req, resp, next) => {
   console.log(req.method, req.path)
@@ -70,7 +105,7 @@ if (BOLTWALL_PROTECTED_URL) {
     })
 }
 
-app.use(path.join('/api', BOLTWALL_PATH), protectedRoute)
+app.use(boltwallPath, protectedRoute)
 app.all('*', (req, res) => res.status(404).send('Resource not found'))
 
 module.exports = app

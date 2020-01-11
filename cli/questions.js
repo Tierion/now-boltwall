@@ -60,11 +60,14 @@ const deployQuestions = [
     type: 'confirm',
     name: 'customConfigs',
     message: 'Use custom restriction configs (e.g. time or origin based)?',
+    when: () =>
+      process.env.CUSTOM_CONFIGS !== 'false' &&
+      (!process.env.TIME_CAVEAT_CONFIGS && !process.env.ORIGIN_CAVEAT_CONFIGS),
   },
   {
     type: 'list',
     name: 'config',
-    when: hash => hash.customConfigs,
+    when: hash => hash.customConfigs || process.env.CUSTOM_CONFIGS === 'true',
     message:
       'Choose a pre-build configuration for access restrictions (see https://github.com/Tierion/boltwall for more information):',
     choices: [
@@ -89,6 +92,13 @@ const deployQuestions = [
       { name: 'HODL Invoice', value: 'hodl' },
     ],
     when: () => !process.env.BOLTWALL_HODL,
+  },
+  {
+    type: 'input',
+    name: 'origin',
+    message:
+      'Origin (for CORS policy. Leave blank to allow requests from all origins):',
+    when: () => !process.env.BOLTWALL_ORIGIN,
   },
 ]
 

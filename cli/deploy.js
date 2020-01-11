@@ -73,7 +73,7 @@ async function deploy(name, cmdObject) {
 }
 
 function runNow(configs, name) {
-  const args = []
+  const args = ['--prod']
 
   if (name) {
     args.push('--name', name)
