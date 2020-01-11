@@ -1,6 +1,6 @@
 {
   "name": "now-boltwall",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "main": "./index.js",
   "description": "A command line tool that makes it easy to configure and deploy a lightning-enabled paywall server w/ boltwall",
   "author": "Bucko",
