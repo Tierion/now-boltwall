@@ -62,7 +62,7 @@ const deployQuestions = [
     message: 'Use custom restriction configs (e.g. time or origin based)?',
     when: () =>
       process.env.CUSTOM_CONFIGS !== 'false' &&
-      (!process.env.TIME_CAVEAT_CONFIGS && !process.env.ORIGIN_CAVEAT_CONFIGS),
+      (!process.env.TIME_CAVEAT && !process.env.ORIGIN_CAVEAT),
   },
   {
     type: 'list',
@@ -72,8 +72,8 @@ const deployQuestions = [
       'Choose a pre-build configuration for access restrictions (see https://github.com/Tierion/boltwall for more information):',
     choices: [
       { name: 'None', value: false },
-      { name: 'TIME_CAVEAT_CONFIGS', value: 'time' },
-      { name: 'ORIGIN_CAVEAT_CONFIGS', value: 'origin' },
+      { name: 'TIME_CAVEAT', value: 'time' },
+      { name: 'ORIGIN_CAVEAT', value: 'origin' },
     ],
   },
   {
