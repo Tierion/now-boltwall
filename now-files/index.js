@@ -22,6 +22,8 @@ const {
   BOLTWALL_PATH = 'protected',
   BOLTWALL_PROTECTED_URL,
   BOLTWALL_ORIGIN,
+  BOLTWALL_OAUTH,
+  BOLTWALL_RATE,
 } = process.env
 
 // express middleware
@@ -68,6 +70,16 @@ if (MIN_AMOUNT) {
 if (BOLTWALL_HODL === 'true') {
   console.log('HODL invoices enabled')
   configs.hodl = true
+}
+
+if (BOLTWALL_OAUTH === 'true') {
+  console.log('3rd party authentication with oauth is enabled')
+  configs.oauth = true
+}
+
+if (BOLTWALL_RATE && BOLTWALL_RATE > 0) {
+  console.log('3rd party authentication with oauth is enabled')
+  configs.rate = BOLTWALL_RATE
 }
 
 app.use((req, resp, next) => {

@@ -100,6 +100,25 @@ const deployQuestions = [
       'Origin (for CORS policy. Leave blank to allow requests from all origins):',
     when: () => !process.env.BOLTWALL_ORIGIN,
   },
+  {
+    type: 'input',
+    name: 'rate',
+    message:
+      'What rate should be set in the config? (Usually used for time based caveats which supports values to calculate seconds/satoshi for expiration time):',
+    when: () => !process.env.BOLTWALL_RATE,
+    validate: input => {
+      if (isNaN(input)) return 'Must pass a valid number'
+      return true
+    },
+  },
+  {
+    type: 'confirm',
+    name: 'oauth',
+    default: false,
+    message:
+      'Enable oauth for 3rd-party authentication? (See README for more information: https://github.com/Tierion/boltwall#3rd-party-authentication)',
+    when: () => !process.env.BOLTWALL_OAUTH,
+  },
 ]
 
 exports.deployQuestions = deployQuestions
