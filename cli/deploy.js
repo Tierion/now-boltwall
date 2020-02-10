@@ -1,6 +1,6 @@
 const { prompt } = require('inquirer')
 const chalk = require('chalk')
-const { existsSync } = require('fs')
+const { existsSync, statSync } = require('fs')
 const { execSync, spawn } = require('child_process')
 const path = require('path')
 const dotenv = require('dotenv')
@@ -68,15 +68,27 @@ async function deploy(name, cmdObject) {
   if (answers.type === 'hodl') configs.BOLTWALL_HODL = true
   if (answers.route) configs.BOLTWALL_PATH = answers.route
   if (answers.protected) configs.BOLTWALL_PROTECTED_URL = answers.protected
-
+  if (answers.rate) configs.BOLTWALL_RATE = answers.rate
+  if (answers.oauth) configs.BOLTWALL_OAUTH = answers.oauth
   runNow(configs, name)
 }
 
 function runNow(configs, name) {
-  const args = ['--prod']
+  const args = ['--prod', '--confirm']
+  let nowFilesDir = path.join(__dirname, '../now-files')
+  // default deployment directory to the nowFilesDir
+  let projectDir = nowFilesDir
 
+  // set working directory for execSync commands to main now-boltwall dir
+  const wd = path.join(__dirname, '..')
+
+  // since --name has been deprecated in now
+  // we will create a symlink to now-files
   if (name) {
-    args.push('--name', name)
+    projectDir = path.join(process.cwd(), name)
+    execSync(`ln -s ${nowFilesDir} ${name}`, {
+      cwd: wd,
+    })
   }
 
   for (const key in configs) {
@@ -87,8 +99,8 @@ function runNow(configs, name) {
   }
 
   console.log(chalk`Running with command: {bold.cyan now ${args.join(' ')}}`)
-
-  const cp = spawn('now', args, { cwd: path.join(__dirname, '../now-files') })
+  console.log('projectDir:', nowFilesDir)
+  const cp = spawn('now', args, { cwd: nowFilesDir })
   cp.stdout.on('data', data => {
     console.log(`${data}`)
   })
@@ -97,7 +109,18 @@ function runNow(configs, name) {
     console.error(`${data}`)
   })
 
+  cp.on('error', err => console.error('now-cli encountered an error:', err))
+
   cp.on('close', code => {
+    // cleanup named now-files directory
+    console.log('should I delete ', projectDir)
+    // make sure we're not deleting the actual now-files
+    if (
+      name &&
+      statSync(projectDir).isSymbolicLink() &&
+      projectDir !== nowFilesDir
+    )
+      execSync(`rm ${projectDir}`)
     if (code !== 0) console.log(`now-cli exited with code ${code}`)
     return
   })
