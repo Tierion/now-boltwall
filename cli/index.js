@@ -20,7 +20,7 @@ program
   .action(secrets)
 
 program
-  .command('deploy [name]')
+  .command('deploy <name>')
   .alias('d')
   .option('-s --secrets', 'Use now secrets for configs')
   .option(
@@ -28,7 +28,7 @@ program
     'Use env vars and .env file (at envPath if set, defaults to current working dir) for configs'
   )
   .description(
-    'Deploy an instance using now-cli. Pass custom name if not using directory name.'
+    'Deploy an instance using now-cli. Pass the name of your project to be used in the deployment url.'
   )
   .action(deploy)
 

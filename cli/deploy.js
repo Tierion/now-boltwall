@@ -1,6 +1,6 @@
 const { prompt } = require('inquirer')
 const chalk = require('chalk')
-const { existsSync, statSync } = require('fs')
+const { existsSync, removeSync, copySync } = require('fs-extra')
 const { execSync, spawn } = require('child_process')
 const path = require('path')
 const dotenv = require('dotenv')
@@ -79,16 +79,14 @@ function runNow(configs, name) {
   // default deployment directory to the nowFilesDir
   let projectDir = nowFilesDir
 
-  // set working directory for execSync commands to main now-boltwall dir
-  const wd = path.join(__dirname, '..')
-
   // since --name has been deprecated in now
   // we will create a symlink to now-files
   if (name) {
     projectDir = path.join(process.cwd(), name)
-    execSync(`ln -s ${nowFilesDir} ${name}`, {
-      cwd: wd,
-    })
+    // copy projectDir if it exists
+    if (existsSync(projectDir) && projectDir !== nowFilesDir)
+      removeSync(projectDir)
+    copySync(nowFilesDir, projectDir)
   }
 
   for (const key in configs) {
@@ -99,8 +97,8 @@ function runNow(configs, name) {
   }
 
   console.log(chalk`Running with command: {bold.cyan now ${args.join(' ')}}`)
-  console.log('projectDir:', nowFilesDir)
-  const cp = spawn('now', args, { cwd: nowFilesDir })
+
+  const cp = spawn('now', args, { cwd: projectDir })
   cp.stdout.on('data', data => {
     console.log(`${data}`)
   })
@@ -112,15 +110,9 @@ function runNow(configs, name) {
   cp.on('error', err => console.error('now-cli encountered an error:', err))
 
   cp.on('close', code => {
-    // cleanup named now-files directory
-    console.log('should I delete ', projectDir)
+    // cleanup named now-files directory and
     // make sure we're not deleting the actual now-files
-    if (
-      name &&
-      statSync(projectDir).isSymbolicLink() &&
-      projectDir !== nowFilesDir
-    )
-      execSync(`rm ${projectDir}`)
+    if (name && projectDir !== nowFilesDir) removeSync(projectDir)
     if (code !== 0) console.log(`now-cli exited with code ${code}`)
     return
   })
