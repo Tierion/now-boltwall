@@ -36,12 +36,12 @@ async function secrets() {
     configs.SESSION_SECRET = crypto.randomBytes(32).toString('hex')
   }
 
-  if (answers.now) {
+  if (answers.vercel) {
     try {
       await saveNowSecrets(configs)
     } catch (e) {
       console.error(
-        chalk`{bold Problem saving now secrets:} {red.bold ${e.message}}`
+        chalk`{bold Problem saving vercel secrets:} {red.bold ${e.message}}`
       )
       return
     }
@@ -197,7 +197,7 @@ async function saveNowSecrets(configs) {
 
   const configKeys = Object.keys(configs).map(key => key.toLowerCase())
 
-  const secrets = execSync('now secrets list').toString()
+  const secrets = execSync('vercel secrets list').toString()
   const exists = configKeys.filter(key => secrets.includes(key))
 
   // remove existing secrets to avoid any conflicts
@@ -217,18 +217,18 @@ async function saveNowSecrets(configs) {
 
     for (const secret of exists) {
       console.log(chalk.bold(`Deleting ${secret}...`))
-      const resp = execSync(`now secrets rm -y ${secret}`)
+      const resp = execSync(`vercel secrets rm -y ${secret}`)
       console.log(resp.toString())
     }
   }
 
-  console.log(chalk.bold('Setting now secrets'))
+  console.log(chalk.bold('Setting vercel secrets'))
   for (const secret in configs) {
     if (!configs[secret]) continue
 
     console.log(chalk.bold(`Setting ${secret.toLowerCase()}`))
     const resp = execSync(
-      `now secrets add ${secret.toLowerCase()} "${configs[secret]}"`
+      `vercel secrets add ${secret.toLowerCase()} "${configs[secret]}"`
     )
     console.log(resp.toString())
   }

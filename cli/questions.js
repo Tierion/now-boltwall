@@ -11,9 +11,9 @@ const secretsQuestions = [
   },
   {
     type: 'confirm',
-    name: 'now',
+    name: 'vercel',
     message:
-      'Save in now secrets? (this will allow for future deployments without reconfiguring)',
+      'Save in vercel secrets? (this will allow for future deployments without reconfiguring)',
   },
   {
     type: 'confirm',

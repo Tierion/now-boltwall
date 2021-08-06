@@ -36,16 +36,16 @@ and LSATs for authorization, and much more.
     - [Server Configs](#server-configs)
     - [BTCPay Server Configuration](#btcpay-server-configuration)
   - [API](#api)
-      - [GET /api/node](#get-apinode)
-      - [[METHOD] /api/[BOLTWALL_PATH]](#method-apiboltwallpath)
-      - [POST /api/invoice](#post-apiinvoice)
-      - [GET /api/invoice](#get-apiinvoice)
+      - [`GET /api/node`](#get-apinode)
+      - [`[METHOD] /api/[BOLTWALL_PATH]`](#method-apiboltwall_path)
+      - [`POST /api/invoice`](#post-apiinvoice)
+      - [`GET /api/invoice`](#get-apiinvoice)
   - [Additional Information](#additional-information)
   - [Troubleshooting](#troubleshooting)
 
 ## System Requirements
 
-- `now-cli` and an account with zeit's `now` service
+- `vercel` cli (formerly `now` by Zeit) and an account with vercel's serverless deployment service
 - `node >0.10.0`
 
 ## Installation
@@ -55,11 +55,11 @@ This assumes you already have your own lightning node running [lnd](https://ligh
 If you've never used zeit's `now` before, create a [Zeit account](https://zeit.co/signup)
 for free, serverless deployments.
 
-Next, install `now-cli`:
+Next, install `vercel`:
 
 ```shell
 # npm i -g now // to install with npm
-$ yarn global add now
+$ yarn global add vercel
 ```
 
 Then do the same for `now-boltwall`:
@@ -80,7 +80,7 @@ to get usage instructions:
 $ now-boltwall --help
 Usage:  [options] [command]
 
-Zeit lambda deployment for a Nodejs Lightning-powered Paywall
+Vercel lambda deployment for a Nodejs Lightning-powered Paywall
 
 Options:
   -V, --version              output the version number
@@ -104,17 +104,17 @@ Simply run `now-boltwall secrets` and the CLI will walk you through the steps to
 
 The CLI offers two ways to persist the secrets:
 
-- using `now` secrets (see [documentation](https://zeit.co/docs/v2/serverless-functions/env-and-secrets/?query=secrets) for more information)
+- using `vercel` secrets (see [documentation](https://zeit.co/docs/v2/serverless-functions/env-and-secrets/?query=secrets) for more information)
 - In an `.env` file
 
-`now` secrets are _required_ for deploying to a live server. The `.env` option can be helpful for saving references
+`vercel` secrets are _required_ for deploying to a live server. The `.env` option can be helpful for saving references
 to secrets or running a local server with `now dev`.
 
 **NOTE**: When generating new secrets or an `.env` file, any existing values will be overwritten.
-This is to avoid any conflicting configurations and because `now secrets` only supports saving
+This is to avoid any conflicting configurations and because `vercel secrets` only supports saving
 one secret of a given name at a time.
 
-**NOTE 2:** A `now secret` remains hidden forever. While it can be passed to a deployment, there is no way
+**NOTE 2:** A `vercel secret` remains hidden forever. While it can be passed to a deployment, there is no way
 for a developer to read a previously set secret.
 
 ### Deploy
@@ -123,7 +123,7 @@ for a developer to read a previously set secret.
 $ now-boltwall deploy --help
 Usage: now-boltwall deploy|d [options] [name]
 
-Deploy an instance using now-cli. Pass custom name if not using directory name.
+Deploy an instance using vercel. Pass custom name if not using directory name.
 
 Options:
   -s --secrets        Use now secrets for configs
@@ -132,7 +132,7 @@ Options:
 
 ```
 
-`now-boltwall deploy` will deploy a live boltwall instance to zeit's server, giving you
+`now-boltwall deploy` will deploy a live boltwall instance to vercel's server, giving you
 a URL where you can access it.
 
 Both secrets and a `.env` file are supported for passing configurations to the deployment. If
@@ -144,13 +144,13 @@ present in a `.env` file or `now secrets` will be asked about by the CLI before 
 Learn more about all available [configurations](#configurations) further below.
 
 The `name` parameter will determine the name of the project used for deployment and will be used
-in the final URL. If none is passed, `name` defaults to the name of the project directory (`now-boltwall`).
+in the final URL. If none is passed, `name` defaults to the name of the project directory (e.g. `now-boltwall`).
 
 ## Configurations
 
 The following configurations are available to be set for deployment. Save them in your `.env`
 file to persist across deployments (and between `dev` and `prod`). They can also be
-set via `now secrets` by setting the _lowercase_ variable name equivalent,
+set via `vercel secrets` by setting the _lowercase_ variable name equivalent,
 but cannot be read afterward.
 
 Remember that if you save `now-boltwall secrets` in a `.env` file at the same location,
@@ -188,9 +188,9 @@ these automatically for you if connecting to a [BTCPay Server](#btcpay-server-co
   via `/api/[BOLTWALL_PATH]`. The server will proxy authenticated requests to this URL and can
   be any URL you want. Try it out with the PokéAPI as a test (https://pokeapi.co/api/v2/) and then
   make a paid request to `/api/protected/pokemon/pikachu`
-- `BOLTWALL_ORIGIN`- For CORS policy. If nothing is set, now-boltwall will default to setting 
-`origin:true` which allows requests from all origins. To restrict to a specific host, set this
-via the CLI or `.env` file.
+- `BOLTWALL_ORIGIN`- For CORS policy. If nothing is set, now-boltwall will default to setting
+  `origin:true` which allows requests from all origins. To restrict to a specific host, set this
+  via the CLI or `.env` file.
 
 ### BTCPay Server Configuration
 

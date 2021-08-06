@@ -47,7 +47,7 @@ async function deploy(name, cmdObject) {
   const answers = await prompt(deployQuestions)
 
   if (useSecrets) {
-    const secrets = execSync('now secrets list').toString()
+    const secrets = execSync('vercel secrets list').toString()
     const enabled = []
     for (const key in CONFIGS) {
       if (secrets.includes(key.toLowerCase())) {
@@ -56,7 +56,7 @@ async function deploy(name, cmdObject) {
       }
     }
     if (enabled.length)
-      console.log(chalk`Using now secrets: {bold ${enabled.join(', ')}}`)
+      console.log(chalk`Using vercel secrets: {bold ${enabled.join(', ')}}`)
   }
 
   if (answers.customConfigs) {
@@ -96,9 +96,9 @@ function runNow(configs, name) {
     }
   }
 
-  console.log(chalk`Running with command: {bold.cyan now ${args.join(' ')}}`)
+  console.log(chalk`Running with command: {bold.cyan vercel ${args.join(' ')}}`)
 
-  const cp = spawn('now', args, { cwd: projectDir })
+  const cp = spawn('vercel', args, { cwd: projectDir })
   cp.stdout.on('data', data => {
     console.log(`${data}`)
   })
@@ -107,13 +107,13 @@ function runNow(configs, name) {
     console.error(`${data}`)
   })
 
-  cp.on('error', err => console.error('now-cli encountered an error:', err))
+  cp.on('error', err => console.error('vercel encountered an error:', err))
 
   cp.on('close', code => {
     // cleanup named now-files directory and
     // make sure we're not deleting the actual now-files
     if (name && projectDir !== nowFilesDir) removeSync(projectDir)
-    if (code !== 0) console.log(`now-cli exited with code ${code}`)
+    if (code !== 0) console.log(`vercel exited with code ${code}`)
     return
   })
 }

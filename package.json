@@ -14,7 +14,7 @@
     "postversion": "git push && git push --tags"
   },
   "dependencies": {
-    "@zeit/ncc": "^0.21.0",
+    "@vercel/ncc": "^0.29.0",
     "chalk": "^3.0.0",
     "commander": "^4.1.0",
     "dotenv": "^8.2.0",
