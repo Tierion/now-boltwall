@@ -5,57 +5,56 @@ const { existsSync, readFileSync, writeFileSync } = require('fs')
 const path = require('path')
 const os = require('os')
 const crypto = require('crypto')
+const { decode } = require('lndconnect')
 
-const { testNow } = require('./helpers')
+const { testVercel } = require('./helpers')
 const { CONFIGS } = require('./constants')
 const { secretsQuestions } = require('./questions')
-async function secrets() {
-  const answers = await prompt(secretsQuestions)
 
-  let configs = {
-    ...CONFIGS,
-  }
-
-  let getConfigs
-  let source = answers.source
-
-  if (source === 'btcpay') getConfigs = configsFromBTCPay
-  else if (source === 'opennode') getConfigs = configsFromOpenNode
-  else getConfigs = configsFromInput
+async function configsFromLndConnect() {
+  const { uri } = await prompt({
+    type: 'input',
+    name: 'uri',
+    message:
+      'lndconnect uri (https://github.com/LN-Zap/lndconnect/blob/master/lnd_connect_uri.md)',
+    validate: input => {
+      if (input.indexOf('lndconnect://') !== 0) {
+        return chalk.red('Invalid URL, must start with "lndconnect://"')
+      }
+      return true
+    },
+  })
 
   try {
-    const newConfigs = await getConfigs()
-    configs = { ...configs, ...newConfigs }
+    const { host, cert, macaroon } = decode(uri)
+    if (!cert)
+      console.log(
+        chalk.bgYellow(
+          'Warning: No TLS cert. If this is not enabled on your node then you have nothing to worry about'
+        )
+      )
+
+    if (!macaroon)
+      console.log(
+        chalk.bgYellow(
+          'Warning: No macaroon. You may not have permission to run operations against your node'
+        )
+      )
+
+    if (!host.includes(':'))
+      console.log(
+        chalk.bgYellow(
+          'Warning: Is your host information formatted correctly -> [HOST]:[PORT] (e.g. 123.45.6.7:8.9.1.0'
+        )
+      )
+
+    return {
+      LND_SOCKET: host,
+      LND_TLS_CERT: cert,
+      LND_MACAROON: macaroon,
+    }
   } catch (e) {
-    return console.log(chalk.red.bold(e.message))
-  }
-
-  if (answers.secret) {
-    configs.SESSION_SECRET = answers.secret
-  } else {
-    configs.SESSION_SECRET = crypto.randomBytes(32).toString('hex')
-  }
-
-  if (answers.vercel) {
-    try {
-      await saveNowSecrets(configs)
-    } catch (e) {
-      console.error(
-        chalk`{bold Problem saving vercel secrets:} {red.bold ${e.message}}`
-      )
-      return
-    }
-  }
-
-  if (answers.env) {
-    try {
-      await saveEnvFile(answers.filePath, configs)
-    } catch (e) {
-      console.error(
-        chalk`{bold Problem saving env file:} {red.bold ${e.message}}`
-      )
-      return
-    }
+    return chalk.red(`Problem reading lndconnect uri: `, e.message)
   }
 }
 
@@ -193,7 +192,7 @@ async function readBtcPayConfig(url) {
 }
 
 async function saveNowSecrets(configs) {
-  testNow()
+  testVercel()
 
   const configKeys = Object.keys(configs).map(key => key.toLowerCase())
 
@@ -257,4 +256,56 @@ async function saveEnvFile(fileDir, configs) {
   writeFileSync(filePath, content)
   console.log(`Env file written to: ${filePath}`)
 }
+
+async function secrets() {
+  const answers = await prompt(secretsQuestions)
+
+  let configs = {
+    ...CONFIGS,
+  }
+
+  let getConfigs
+  let source = answers.source
+
+  if (source === 'btcpay') getConfigs = configsFromBTCPay
+  else if (source === 'lndconnect') getConfigs = configsFromLndConnect
+  else if (source === 'opennode') getConfigs = configsFromOpenNode
+  else getConfigs = configsFromInput
+
+  try {
+    const newConfigs = await getConfigs()
+    configs = { ...configs, ...newConfigs }
+  } catch (e) {
+    return console.log(chalk.red.bold(e.message))
+  }
+
+  if (answers.secret) {
+    configs.SESSION_SECRET = answers.secret
+  } else {
+    configs.SESSION_SECRET = crypto.randomBytes(32).toString('hex')
+  }
+
+  if (answers.vercel) {
+    try {
+      await saveNowSecrets(configs)
+    } catch (e) {
+      console.error(
+        chalk`{bold Problem saving vercel secrets:} {red.bold ${e.message}}`
+      )
+      return
+    }
+  }
+
+  if (answers.env) {
+    try {
+      await saveEnvFile(answers.filePath, configs)
+    } catch (e) {
+      console.error(
+        chalk`{bold Problem saving env file:} {red.bold ${e.message}}`
+      )
+      return
+    }
+  }
+}
+
 module.exports = secrets

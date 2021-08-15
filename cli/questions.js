@@ -4,6 +4,7 @@ const secretsQuestions = [
     name: 'source',
     message: 'How would you like to load your LND connection details?',
     choices: [
+      { name: 'LND Connect', value: 'lndconnect' },
       { name: 'BTCPay Server', value: 'btcpay' },
       { name: 'File path or raw values', value: 'raw' },
       { name: 'OpenNode API key', value: 'opennode' },
@@ -118,6 +119,12 @@ const deployQuestions = [
     message:
       'Enable oauth for 3rd-party authentication? (See README for more information: https://github.com/Tierion/boltwall#3rd-party-authentication)',
     when: () => !process.env.BOLTWALL_OAUTH,
+  },
+  {
+    type: 'confirm',
+    name: 'dev',
+    default: false,
+    message: 'Run in development mode locally? (defaults to prod)',
   },
 ]
 

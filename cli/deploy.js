@@ -5,8 +5,8 @@ const { execSync, spawn } = require('child_process')
 const path = require('path')
 const dotenv = require('dotenv')
 
-const { testNow } = require('./helpers')
-const { CONFIGS } = require('./constants')
+const { testVercel } = require('./helpers')
+const { CONFIGS, CONFIG_KEYS } = require('./constants')
 const { deployQuestions } = require('./questions')
 
 async function deploy(name, cmdObject) {
@@ -15,7 +15,7 @@ async function deploy(name, cmdObject) {
   let configs = {}
 
   try {
-    testNow()
+    testVercel()
   } catch (e) {
     return console.log(chalk.bold.red(e.message))
   }
@@ -70,35 +70,82 @@ async function deploy(name, cmdObject) {
   if (answers.protected) configs.BOLTWALL_PROTECTED_URL = answers.protected
   if (answers.rate) configs.BOLTWALL_RATE = answers.rate
   if (answers.oauth) configs.BOLTWALL_OAUTH = answers.oauth
-  runNow(configs, name)
+  runNow(configs, name, answers.dev)
 }
 
-function runNow(configs, name) {
-  const args = ['--prod', '--confirm']
+function runNow(configs, name, dev) {
+  const args = []
+
+  if (dev) args.push('dev')
+  else args.push('--prod')
+
+  args.push('--confirm')
+
   let nowFilesDir = path.join(__dirname, '../now-files')
   // default deployment directory to the nowFilesDir
   let projectDir = nowFilesDir
 
-  // since --name has been deprecated in now
+  // since --name has been deprecated in vercel
   // we will create a symlink to now-files
   if (name) {
     projectDir = path.join(process.cwd(), name)
+    // remove .vercel file in now-files if it exists since the project
+    // name will default to that
+    const vercelDir = path.join(nowFilesDir, '.vercel')
+
+    if (existsSync(vercelDir)) {
+      removeSync(vercelDir)
+    }
+
     // copy projectDir if it exists
     if (existsSync(projectDir) && projectDir !== nowFilesDir)
       removeSync(projectDir)
     copySync(nowFilesDir, projectDir)
   }
 
-  for (const key in configs) {
-    if (configs[key]) {
-      const option = `${key}=${configs[key]}`
-      args.push('-e', `${option}`)
+  // for local dev the environment variables go
+  // into the environment rather than passed in the command
+  const envVars = {}
+  if (dev) {
+    for (const key in configs) {
+      if (configs[key]) {
+        envVars[key] = configs[key]
+      }
+    }
+  } else {
+    for (const key in configs) {
+      if (configs[key]) {
+        const option = `${key}=${configs[key]}`
+        args.push('-e', `${option}`)
+      }
     }
   }
 
-  console.log(chalk`Running with command: {bold.cyan vercel ${args.join(' ')}}`)
+  // cleanup output to avoid printing sensitive values
+  const printableArgs = [...args].map(arg => {
+    const sensitiveArgs = [
+      CONFIG_KEYS.LND_MACAROON,
+      CONFIG_KEYS.LND_TLS_CERT,
+      CONFIG_KEYS.SESSION_SECRET,
+      CONFIG_KEYS.OPEN_NODE_KEY,
+    ]
 
-  const cp = spawn('vercel', args, { cwd: projectDir })
+    for (const sensitive of sensitiveArgs) {
+      if (arg.includes(sensitive)) {
+        return `${sensitive}=[PROTECTED]`
+      }
+    }
+    return arg
+  })
+
+  console.log(
+    chalk`Running with command: {bold.cyan vercel ${printableArgs.join(' ')}}`
+  )
+
+  const cp = spawn('vercel', args, {
+    cwd: projectDir,
+    env: { ...process.env, ...envVars },
+  })
   cp.stdout.on('data', data => {
     console.log(`${data}`)
   })

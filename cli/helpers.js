@@ -1,7 +1,7 @@
 const { spawnSync } = require('child_process')
 const chalk = require('chalk')
 
-function testNow() {
+function testVercel() {
   console.log(chalk.bold('Checking local version of vercel...'))
   try {
     const nowVersion = spawnSync('vercel', ['--version'])
@@ -18,4 +18,4 @@ Vercel team: ${nowTeam.stdout.toString()}`)
   }
 }
 
-exports.testNow = testNow
+exports.testVercel = testVercel
