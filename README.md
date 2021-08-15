@@ -13,7 +13,7 @@ paid to your lightning node, _for free_.
 - Time and origin-based access restrictions
 - Add a paywall to existing endpoints
 - OpenNode configuration for a paywall with custodial lightning node
-- Easy re-deployment with by automatically saving env secrets to the `now` environment
+- Easy re-deployment with by automatically saving env secrets to the `vercel` environment
 - Automatically generate `.env` files to save configuration
 - HODL invoices for escrow-like support and split payments
 - Account-less authorization using LSATs
@@ -52,13 +52,13 @@ and LSATs for authorization, and much more.
 
 This assumes you already have your own lightning node running [lnd](https://lightning.engineering) on its own, with [BTCPay Server](https://btcpayserver.org/) or with [OpenNode](https://www.opennode.com/)
 
-If you've never used zeit's `now` before, create a [Zeit account](https://zeit.co/signup)
+If you've never used `vercel` before, create a [vercel account](https://vercel.com)
 for free, serverless deployments.
 
 Next, install `vercel`:
 
 ```shell
-# npm i -g now // to install with npm
+# npm i -g vercel // to install with npm
 $ yarn global add vercel
 ```
 
@@ -108,7 +108,7 @@ The CLI offers two ways to persist the secrets:
 - In an `.env` file
 
 `vercel` secrets are _required_ for deploying to a live server. The `.env` option can be helpful for saving references
-to secrets or running a local server with `now dev`.
+to secrets or running a local server with `vercel dev`.
 
 **NOTE**: When generating new secrets or an `.env` file, any existing values will be overwritten.
 This is to avoid any conflicting configurations and because `vercel secrets` only supports saving
@@ -126,7 +126,7 @@ Usage: now-boltwall deploy|d [options] [name]
 Deploy an instance using vercel. Pass custom name if not using directory name.
 
 Options:
-  -s --secrets        Use now secrets for configs
+  -s --secrets        Use vercel secrets for configs
   -e --env [envPath]  Use env vars and .env file (at envPath if set, defaults to current working dir) for configs
   -h, --help          output usage information
 
@@ -140,7 +140,7 @@ both are enabled (e.g. with `now-boltwall deploy -es`) then secrets will take pr
 
 In addition to the credentials Boltwall needs to connect to your lightning node, there are
 other parameters you can pass to customize your boltwall deployment. Any options that are not
-present in a `.env` file or `now secrets` will be asked about by the CLI before deployment.
+present in a `.env` file or `vercel secrets` will be asked about by the CLI before deployment.
 Learn more about all available [configurations](#configurations) further below.
 
 The `name` parameter will determine the name of the project used for deployment and will be used
@@ -249,7 +249,7 @@ indicated by the paymentHash encoded in the LSAT.
 
 ## Troubleshooting
 
-- If you get an error from Zeit, you'll want to log in to your [Zeit dashboard](https://zeit.co) and
+- If you get an error from Zeit, you'll want to log in to your [Vercel dashboard](https://vercel.com) and
   check the logs for your deployment.
 - If an LSAT that should be valid is getting `Unauthorized` responses, make sure that the
   `SESSION_SECRET` is getting persisted. Macaroons are signed and verified with this value.
