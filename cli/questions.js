@@ -105,7 +105,7 @@ const deployQuestions = [
     type: 'input',
     name: 'rate',
     message:
-      'What rate should be set in the config? (Usually used for time based caveats which supports values to calculate seconds/satoshi for expiration time):',
+      'What rate should be set in the config? (Usually used for time based caveats which supports values to calculate satoshis/second for expiration time):',
     when: () => !process.env.BOLTWALL_RATE,
     validate: input => {
       if (isNaN(input)) return 'Must pass a valid number'
