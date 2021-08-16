@@ -116,6 +116,11 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.17.14.tgz#b6c60ebf2fb5e4229fdd751ff9ddfae0f5f31541"
   integrity sha512-G0UmX5uKEmW+ZAhmZ6PLTQ5eu/VPaT+d/tdLd5IFsKRPcbe6lPxocBtcYBFSaLaCW8O60AX90e91Nsp8lVHCNw==
 
+"@types/sjcl@^1.0.29":
+  version "1.0.30"
+  resolved "https://registry.yarnpkg.com/@types/sjcl/-/sjcl-1.0.30.tgz#c1db866622ef4da56af081fa2e258d76fb255b89"
+  integrity sha512-4ebBtj1rx3Kh3To5RnPua+U4JzVwH2MxUmHQvAlxWpzmfmupBRyyXAIEQceon+e5tW9aBeOApTYA6EXfBysRyQ==
+
 "@types/uuid@^3.4.6":
   version "3.4.7"
   resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-3.4.7.tgz#51d42247473bc00e38cc8dfaf70d936842a36c03"
@@ -440,10 +445,10 @@ bolt11@^1.2.7:
     safe-buffer "^5.1.1"
     secp256k1 "^3.4.0"
 
-boltwall@^5.0.10:
-  version "5.0.10"
-  resolved "https://registry.yarnpkg.com/boltwall/-/boltwall-5.0.10.tgz#c7c9e9b378304249875d6e4f786c5891f38259d4"
-  integrity sha512-yOOeWw/xbzk/+51G78aIdLGoO8OXh1MZ0WDFsHJQOt/3vnNX+Pf/HZDmvO5BDNA3hDdG+hUuigNnAh3VB0TCkA==
+boltwall@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/boltwall/-/boltwall-6.0.0.tgz#7e882851eb956e2b9f55a66ff19bf947830502e9"
+  integrity sha512-tWLnyPXqeiSM0+4shOK9pcaPQPNhPiEh9XHYKa6MCqEnfBqKESOSPDTdlzlZbFTa0xzgfFS31vzPdOpiYSQRZw==
   dependencies:
     "@zeit/ncc" "^0.21.0"
     binet "^0.3.5"
@@ -452,8 +457,8 @@ boltwall@^5.0.10:
     dotenv "8.0.0"
     express "4.17.1"
     ln-service "https://github.com/bucko13/ln-service#path"
-    lsat-js "^1.0.6"
-    macaroons.js "^0.3.8"
+    lsat-js "^2.0.0"
+    macaroon "git+https://github.com/tierion/js-macaroon.git#ts"
     opennode "1.1.1"
     request-promise "^4.2.5"
     request-promise-native "^1.0.8"
@@ -815,11 +820,6 @@ ecc-jsbn@~0.1.1:
   dependencies:
     jsbn "~0.1.0"
     safer-buffer "^2.1.0"
-
-ecma-nacl@^2.0.1:
-  version "2.4.2"
-  resolved "https://registry.yarnpkg.com/ecma-nacl/-/ecma-nacl-2.4.2.tgz#c0b3d641217ab749ed5c62d287e67ff9a1eb828f"
-  integrity sha512-QEds3p35MI09kHp0TLFmBqN2eEItVEYIWaeTDtz0AqQZcGX9xoZ+vg984KfoNHyNT18WbXjP2VUmi8t1vja7sQ==
 
 ecurve@^1.0.0:
   version "1.0.6"
@@ -1206,7 +1206,7 @@ is-hex@1.1.3:
   resolved "https://registry.yarnpkg.com/is-hex/-/is-hex-1.1.3.tgz#440259c079681e0372e52156aa67a233c3975dee"
   integrity sha1-RAJZwHloHgNy5SFWqmeiM8OXXe4=
 
-is-typedarray@^1.0.0, is-typedarray@~1.0.0:
+is-typedarray@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/is-typedarray/-/is-typedarray-1.0.0.tgz#e479c80858df0c1b11ddda6940f96011fcda4a9a"
   integrity sha1-5HnICFjfDBsR3dppQPlgEfzaSpo=
@@ -1331,17 +1331,18 @@ long@~3:
   resolved "https://registry.yarnpkg.com/long/-/long-3.2.0.tgz#d821b7138ca1cb581c172990ef14db200b5c474b"
   integrity sha1-2CG3E4yhy1gcFymQ7xTbIAtcR0s=
 
-lsat-js@^1.0.6:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/lsat-js/-/lsat-js-1.0.7.tgz#8216bbbe220f3cda348526b421cb37cd874e5a3b"
-  integrity sha512-/oNpksJGcFDPPpsTA5tiALCFFjBTB+2vwO4duI0NhXAxOi0r5x5xTWeFQ2AVoM7EnLFf6Z0noGS+Hr30rTVNPQ==
+lsat-js@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/lsat-js/-/lsat-js-2.0.0.tgz#b50caf2efea451f75a18f899b8fe12fc0a02e6d8"
+  integrity sha512-IlNvoG8pZT3xBCRtaCXwtwEj/J3Bu0JIyhV2Rk4euynosc4iQZTql93MI5G5pcAVCSoCRHevzq7R3RaPRnnPFQ==
   dependencies:
     "@types/node" "^13.1.0"
+    "@types/sjcl" "^1.0.29"
     "@types/uuid" "^3.4.6"
     bolt11 "^1.2.7"
     bsert "^0.0.10"
     bufio "^1.0.6"
-    macaroons.js "^0.3.8"
+    macaroon "git+https://github.com/tierion/js-macaroon.git#ts"
     uuid "^3.3.3"
 
 macaroon@3.0.4:
@@ -1353,13 +1354,13 @@ macaroon@3.0.4:
     tweetnacl "^1.0.0"
     tweetnacl-util "^0.15.0"
 
-macaroons.js@^0.3.8:
-  version "0.3.8"
-  resolved "https://registry.yarnpkg.com/macaroons.js/-/macaroons.js-0.3.8.tgz#7d91fe66ff74c6a6387e53c9d90a64695e81b158"
-  integrity sha1-fZH+Zv90xqY4flPJ2QpkaV6BsVg=
+"macaroon@git+https://github.com/tierion/js-macaroon.git#ts":
+  version "3.1.0"
+  resolved "git+https://github.com/tierion/js-macaroon.git#f3654fd314f8fa778299b2286b87f78366a941e1"
   dependencies:
-    ecma-nacl "^2.0.1"
-    typedarray-to-buffer "^3.0.1"
+    sjcl "^1.0.6"
+    tweetnacl "^1.0.0"
+    tweetnacl-util "^0.15.0"
 
 md5.js@^1.3.4:
   version "1.3.5"
@@ -2132,13 +2133,6 @@ type-is@~1.6.17, type-is@~1.6.18:
   dependencies:
     media-typer "0.3.0"
     mime-types "~2.1.24"
-
-typedarray-to-buffer@^3.0.1:
-  version "3.1.5"
-  resolved "https://registry.yarnpkg.com/typedarray-to-buffer/-/typedarray-to-buffer-3.1.5.tgz#a97ee7a9ff42691b9f783ff1bc5112fe3fca9080"
-  integrity sha512-zdu8XMNEDepKKR+XYOXAVPtWui0ly0NtohUscw+UmaHiAWT8hrV1rr//H6V+0DvJ3OQ19S979M0laLfX8rm82Q==
-  dependencies:
-    is-typedarray "^1.0.0"
 
 typeforce@^1.11.3, typeforce@^1.11.5:
   version "1.18.0"

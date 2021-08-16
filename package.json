@@ -14,12 +14,13 @@
     "postversion": "git push && git push --tags"
   },
   "dependencies": {
-    "@zeit/ncc": "^0.21.0",
+    "@vercel/ncc": "^0.29.0",
     "chalk": "^3.0.0",
     "commander": "^4.1.0",
     "dotenv": "^8.2.0",
     "fs-extra": "^8.1.0",
-    "inquirer": "^7.0.3"
+    "inquirer": "^7.0.3",
+    "lndconnect": "^0.2.10"
   },
   "engines": {
     "node": ">0.10.0"

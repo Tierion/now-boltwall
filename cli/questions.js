@@ -4,6 +4,7 @@ const secretsQuestions = [
     name: 'source',
     message: 'How would you like to load your LND connection details?',
     choices: [
+      { name: 'LND Connect', value: 'lndconnect' },
       { name: 'BTCPay Server', value: 'btcpay' },
       { name: 'File path or raw values', value: 'raw' },
       { name: 'OpenNode API key', value: 'opennode' },
@@ -11,9 +12,9 @@ const secretsQuestions = [
   },
   {
     type: 'confirm',
-    name: 'now',
+    name: 'vercel',
     message:
-      'Save in now secrets? (this will allow for future deployments without reconfiguring)',
+      'Save in vercel secrets? (this will allow for future deployments without reconfiguring)',
   },
   {
     type: 'confirm',
@@ -104,7 +105,7 @@ const deployQuestions = [
     type: 'input',
     name: 'rate',
     message:
-      'What rate should be set in the config? (Usually used for time based caveats which supports values to calculate seconds/satoshi for expiration time):',
+      'What rate should be set in the config? (Usually used for time based caveats which supports values to calculate satoshis/second for expiration time):',
     when: () => !process.env.BOLTWALL_RATE,
     validate: input => {
       if (isNaN(input)) return 'Must pass a valid number'
@@ -118,6 +119,12 @@ const deployQuestions = [
     message:
       'Enable oauth for 3rd-party authentication? (See README for more information: https://github.com/Tierion/boltwall#3rd-party-authentication)',
     when: () => !process.env.BOLTWALL_OAUTH,
+  },
+  {
+    type: 'confirm',
+    name: 'dev',
+    default: false,
+    message: 'Run in development mode locally? (defaults to prod)',
   },
 ]
 

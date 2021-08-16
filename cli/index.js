@@ -22,13 +22,13 @@ program
 program
   .command('deploy <name>')
   .alias('d')
-  .option('-s --secrets', 'Use now secrets for configs')
+  .option('-s --secrets', 'Use vercel secrets for configs')
   .option(
     '-e --env [envPath]',
     'Use env vars and .env file (at envPath if set, defaults to current working dir) for configs'
   )
   .description(
-    'Deploy an instance using now-cli. Pass the name of your project to be used in the deployment url.'
+    'Deploy an instance using vercel. Pass the name of your project to be used in the deployment url.'
   )
   .action(deploy)
 
