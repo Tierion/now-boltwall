@@ -11,6 +11,7 @@ program
   .command('secrets')
   .description(
     `Set environment variable secrets for LND connections. Supports 3 connection options:
+- LND Connect
 - BTCPay Server
 - File path or raw values (hex or base64)
 - OpenNode API Key
